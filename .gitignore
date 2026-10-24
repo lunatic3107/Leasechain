@@ -1,0 +1,25 @@
+# Secrets (NEVER commit)
+privatekey.txt
+.env
+*.key
+
+# Foundry
+out/
+cache/
+broadcast/
+lib/
+
+# Node (if frontend added later)
+node_modules/
+.next/
+dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
