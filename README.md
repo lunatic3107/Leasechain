@@ -212,4 +212,32 @@ MIT
 
 ---
 
-**Dibuat untuk Monad Blitz Hackathon**
+## Setup & Instalasi
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## Skenario Demo (3 menit)
+
+1. Buka `/` → search `LAND-001` → tunjukkan countdown timer
+2. Ke `/notary` → quick fill → coba daftarkan `LAND-002` (akan ditolak: sudah disewa)
+3. Ke `/challenge` → quick fill → ajukan keberatan `LAND-001`
+4. Ke `/resolver` → lihat sengketa `LAND-003` → resolve
+5. Ke `/audit` → tunjukkan notaris dengan flag "Pola Mencurigakan"
+6. Klik "Keterbatasan Sistem" → baca disclaimer
+
+### 2. Halaman Aksi (butuh wallet)
+- **Panel Notaris** (`/notary`): Form daftarkan sewa baru
+- **Panel Keberatan** (`/challenge`): Form ajukan keberatan + bond
+- **Panel Resolver** (`/resolver`): Simulasi keputusan sengketa
