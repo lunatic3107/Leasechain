@@ -12,6 +12,7 @@ import {
   Info
 } from 'lucide-react';
 import { LimitationsModal } from './LimitationsModal';
+import { WalletConnect } from './WalletConnect';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -21,7 +22,6 @@ export function AppShell({ children }: AppShellProps) {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLimitations, setShowLimitations] = useState(false);
-  const [walletConnected, setWalletConnected] = useState(false);
 
   const navigation = [
     { name: 'Cek Status', path: '/', icon: Search, public: true },
@@ -30,12 +30,6 @@ export function AppShell({ children }: AppShellProps) {
     { name: 'Ajukan Keberatan', path: '/challenge', icon: AlertTriangle, public: false },
     { name: 'Resolver', path: '/resolver', icon: Gavel, public: false },
   ];
-
-  const handleWalletClick = () => {
-    // For demo: toggle mock wallet
-    // In production: use useConnect from wagmi
-    setWalletConnected(!walletConnected);
-  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -74,19 +68,7 @@ export function AppShell({ children }: AppShellProps) {
             </nav>
 
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleWalletClick}
-                className={`
-                  hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors
-                  ${walletConnected 
-                    ? 'bg-success/10 text-success border border-success/30' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }
-                `}
-              >
-                <Wallet size={18} />
-                {walletConnected ? '0x742d...0bEb' : 'Connect Wallet'}
-              </button>
+              <WalletConnect />
 
               <button
                 onClick={() => setShowLimitations(true)}
@@ -119,8 +101,8 @@ export function AppShell({ children }: AppShellProps) {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
-                      ${isActive 
-                        ? 'bg-primary text-white' 
+                      ${isActive
+                        ? 'bg-primary text-white'
                         : 'text-gray-700 hover:bg-gray-100'
                       }
                     `}
@@ -130,19 +112,9 @@ export function AppShell({ children }: AppShellProps) {
                   </Link>
                 );
               })}
-              <button
-                onClick={handleWalletClick}
-                className={`
-                  w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
-                  ${walletConnected 
-                    ? 'bg-success/10 text-success' 
-                    : 'bg-gray-100 text-gray-700'
-                  }
-                `}
-              >
-                <Wallet size={20} />
-                {walletConnected ? 'Wallet Connected' : 'Connect Wallet'}
-              </button>
+              <div className="px-4 py-3">
+                <WalletConnect />
+              </div>
             </nav>
           </div>
         )}
