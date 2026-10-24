@@ -14,8 +14,6 @@
 
 ## Explorers
 
-- MonadVision: https://explorer-testnet.monad.xyz/address/0x11c1a9ccb57a24a5ec52c20bfa67c6df07738f0c
-- Socialscan: https://testnet.monad.socialscan.io/address/0x11c1a9ccb57a24a5ec52c20bfa67c6df07738f0c
 - Monadscan: https://testnet.monadscan.com/address/0x11c1a9ccb57a24a5ec52c20bfa67c6df07738f0c
 
 ## Constructor Arguments

@@ -13,7 +13,7 @@ export const monadTestnet = {
   blockExplorers: {
     default: { 
       name: 'MonadVision', 
-      url: 'https://explorer-testnet.monad.xyz' 
+      url: 'https://testnet.monadscan.com' 
     },
   },
   testnet: true,

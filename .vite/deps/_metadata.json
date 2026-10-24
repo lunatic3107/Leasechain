@@ -1,0 +1,82 @@
+{
+  "hash": "101eb18f",
+  "configHash": "1ec90f5e",
+  "lockfileHash": "f288f902",
+  "browserHash": "12c42cfd",
+  "optimized": {
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "10489e77",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "fe0f0ce6",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "d1bba35e",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.js",
+      "file": "react-router-dom.js",
+      "fileHash": "05f0ef76",
+      "needsInterop": false
+    },
+    "wagmi": {
+      "src": "../../node_modules/wagmi/dist/esm/exports/index.js",
+      "file": "wagmi.js",
+      "fileHash": "0bc29f8b",
+      "needsInterop": false
+    },
+    "@tanstack/react-query": {
+      "src": "../../node_modules/@tanstack/react-query/build/modern/index.js",
+      "file": "@tanstack_react-query.js",
+      "fileHash": "db8af018",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.js",
+      "file": "lucide-react.js",
+      "fileHash": "6c7185c0",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "secp256k1-E6QAHRO2": {
+      "file": "secp256k1-E6QAHRO2.js"
+    },
+    "native-HWIHAEV7": {
+      "file": "native-HWIHAEV7.js"
+    },
+    "chunk-I2MCD6RR": {
+      "file": "chunk-I2MCD6RR.js"
+    },
+    "chunk-GWIBZ34G": {
+      "file": "chunk-GWIBZ34G.js"
+    },
+    "chunk-HPN6G4W4": {
+      "file": "chunk-HPN6G4W4.js"
+    },
+    "chunk-E55NSNTN": {
+      "file": "chunk-E55NSNTN.js"
+    },
+    "ccip-Z7RIXDVN": {
+      "file": "ccip-Z7RIXDVN.js"
+    },
+    "chunk-RM6LUHYN": {
+      "file": "chunk-RM6LUHYN.js"
+    },
+    "chunk-HEP75LRA": {
+      "file": "chunk-HEP75LRA.js"
+    },
+    "chunk-4MBMRILA": {
+      "file": "chunk-4MBMRILA.js"
+    }
+  }
+}
