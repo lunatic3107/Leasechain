@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Zap, Info } from 'lucide-react';
-import { MOCK_BOND } from '@/lib/data/mockData';
+import { AlertTriangle, Zap, Info, ExternalLink } from 'lucide-react';
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { parseEther, keccak256, toBytes } from 'viem';
+import { CONTRACT_ADDRESS, BOND_AMOUNT } from '@/lib/config';
+import LeaseRegistryABI from '@/lib/LeaseRegistry.abi.json';
 
 export function ChallengePanelPage() {
   const [formData, setFormData] = useState({
@@ -10,6 +13,12 @@ export function ChallengePanelPage() {
   const [demoMode, setDemoMode] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [txHash, setTxHash] = useState('');
+
+  const { writeContract, data: hash, isPending } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+    hash: hash as `0x${string}` | undefined
+  });
 
   const demoData = {
     landId: 'LAND-001',
@@ -25,6 +34,7 @@ export function ChallengePanelPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setTxHash('');
 
     if (!formData.landId || !formData.evidenceHash) {
       setError('Semua field harus diisi');
@@ -32,12 +42,25 @@ export function ChallengePanelPage() {
     }
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setSuccess(`Keberatan berhasil diajukan untuk ${formData.landId}. Status tanah berubah menjadi Sengketa. Bond ${MOCK_BOND} MON telah disetor.`);
-      setFormData({ landId: '', evidenceHash: '' });
-    } catch (err) {
-      setError('Terjadi kesalahan. Silakan coba lagi.');
+      const landIdHash = keccak256(toBytes(formData.landId));
+      const evidenceHashBytes = formData.evidenceHash.startsWith('0x')
+        ? formData.evidenceHash as `0x${string}`
+        : `0x${formData.evidenceHash}` as `0x${string}`;
+
+      writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: LeaseRegistryABI,
+        functionName: 'challenge',
+        args: [landIdHash, evidenceHashBytes],
+        value: parseEther(BOND_AMOUNT),
+      });
+
+      if (hash) {
+        setTxHash(hash);
+        setSuccess(`Keberatan berhasil diajukan untuk ${formData.landId}. Status tanah berubah menjadi Sengketa. Bond ${BOND_AMOUNT} MON telah disetor.`);
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Terjadi kesalahan. Silakan coba lagi.');
     }
   };
 
@@ -66,8 +89,8 @@ export function ChallengePanelPage() {
           <div className="flex items-start gap-3 p-4 bg-warning/10 border border-warning/30 rounded-lg">
             <Info className="text-warning flex-shrink-0" size={20} />
             <div className="text-sm text-warning">
-              <strong>Tentang Bond:</strong> Anda harus menyetor <strong>{MOCK_BOND} MON</strong> sebagai jaminan. 
-              Jika keberatan Anda <strong>valid</strong>, bond akan dikembalikan dan sewa dibatalkan. 
+              <strong>Tentang Bond:</strong> Anda harus menyetor <strong>{BOND_AMOUNT} MON</strong> sebagai jaminan.
+              Jika keberatan Anda <strong>valid</strong>, bond akan dikembalikan dan sewa dibatalkan.
               Jika keberatan Anda <strong>tidak valid</strong>, bond akan hangus dan proses finalisasi dilanjutkan.
             </div>
           </div>
@@ -112,7 +135,7 @@ export function ChallengePanelPage() {
                 <strong>Bond yang harus disetor:</strong>
               </div>
               <div className="text-2xl font-bold text-primary">
-                {MOCK_BOND} MON
+                {BOND_AMOUNT} MON
               </div>
             </div>
 
@@ -123,15 +146,45 @@ export function ChallengePanelPage() {
               </div>
             )}
 
-            {success && (
-              <div className="p-4 bg-success/10 border border-success/30 rounded-lg flex items-start gap-3">
-                <AlertTriangle className="text-success flex-shrink-0" size={20} />
-                <div className="text-success text-sm">{success}</div>
+            {isPending && (
+              <div className="p-4 bg-blue-50 border border-blue-300 rounded-lg flex items-start gap-3">
+                <Info className="text-blue-600 flex-shrink-0 animate-pulse" size={20} />
+                <div className="text-blue-800 text-sm">Menunggu konfirmasi wallet...</div>
               </div>
             )}
 
-            <button type="submit" className="btn-danger w-full">
-              Ajukan Keberatan (Setor {MOCK_BOND} MON)
+            {isConfirming && (
+              <div className="p-4 bg-blue-50 border border-blue-300 rounded-lg flex items-start gap-3">
+                <Info className="text-blue-600 flex-shrink-0 animate-pulse" size={20} />
+                <div className="text-blue-800 text-sm">Transaksi sedang dikonfirmasi...</div>
+              </div>
+            )}
+
+            {success && (
+              <div className="p-4 bg-success/10 border border-success/30 rounded-lg flex items-start gap-3">
+                <AlertTriangle className="text-success flex-shrink-0" size={20} />
+                <div className="text-success text-sm">
+                  <div>{success}</div>
+                  {txHash && (
+                    <a
+                      href={`https://testnet.monadscan.com/tx/${txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 text-success hover:underline flex items-center gap-1 font-mono text-xs font-bold"
+                    >
+                      Lihat transaksi <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="btn-danger w-full"
+              disabled={isPending || isConfirming}
+            >
+              {isPending ? 'Menunggu...' : isConfirming ? 'Mengirim...' : `Ajukan Keberatan (Setor ${BOND_AMOUNT} MON)`}
             </button>
           </form>
         </div>

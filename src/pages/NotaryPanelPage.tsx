@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { FileText, Zap, AlertCircle } from 'lucide-react';
+import { FileText, Zap, AlertCircle, ExternalLink, Info } from 'lucide-react';
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { keccak256, toBytes, isAddress } from 'viem';
+import { CONTRACT_ADDRESS } from '@/lib/config';
+import LeaseRegistryABI from '@/lib/LeaseRegistry.abi.json';
 
 export function NotaryPanelPage() {
   const [formData, setFormData] = useState({
@@ -11,6 +15,12 @@ export function NotaryPanelPage() {
   const [demoMode, setDemoMode] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [txHash, setTxHash] = useState('');
+
+  const { writeContract, data: hash, isPending } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+    hash: hash as `0x${string}` | undefined
+  });
 
   const demoData = {
     landId: 'LAND-004',
@@ -28,28 +38,38 @@ export function NotaryPanelPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setTxHash('');
 
-    // Validation
     if (!formData.landId || !formData.tenant || !formData.durationDays || !formData.docHash) {
       setError('Semua field harus diisi');
       return;
     }
 
-    // Mock submission
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simulate double-lease check
-      if (formData.landId === 'LAND-002') {
-        setError('Tanah ini sudah disewa. Pendaftaran sewa ganda ditolak.');
-        return;
-      }
+    if (!isAddress(formData.tenant)) {
+      setError('Alamat penyewa tidak valid');
+      return;
+    }
 
-      setSuccess(`Sewa berhasil didaftarkan untuk ${formData.landId}. Status: Menunggu Finalisasi`);
-      setFormData({ landId: '', tenant: '', durationDays: '', docHash: '' });
-    } catch (err) {
-      setError('Terjadi kesalahan. Silakan coba lagi.');
+    try {
+      const landIdHash = keccak256(toBytes(formData.landId));
+      const durationSeconds = BigInt(parseInt(formData.durationDays) * 86400);
+      const docHashBytes = formData.docHash.startsWith('0x')
+        ? formData.docHash as `0x${string}`
+        : `0x${formData.docHash}` as `0x${string}`;
+
+      writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: LeaseRegistryABI,
+        functionName: 'registerLease',
+        args: [landIdHash, formData.tenant as `0x${string}`, durationSeconds, docHashBytes],
+      });
+
+      if (hash) {
+        setTxHash(hash);
+        setSuccess(`Sewa berhasil didaftarkan untuk ${formData.landId}. Status: Menunggu Finalisasi`);
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Terjadi kesalahan. Silakan coba lagi.');
     }
   };
 
@@ -151,15 +171,45 @@ export function NotaryPanelPage() {
               </div>
             )}
 
-            {success && (
-              <div className="p-4 bg-success/10 border border-success/30 rounded-lg flex items-start gap-3">
-                <FileText className="text-success flex-shrink-0" size={20} />
-                <div className="text-success text-sm">{success}</div>
+            {isPending && (
+              <div className="p-4 bg-blue-50 border border-blue-300 rounded-lg flex items-start gap-3">
+                <Info className="text-blue-600 flex-shrink-0 animate-pulse" size={20} />
+                <div className="text-blue-800 text-sm">Menunggu konfirmasi wallet...</div>
               </div>
             )}
 
-            <button type="submit" className="btn-primary w-full">
-              Daftarkan Sewa
+            {isConfirming && (
+              <div className="p-4 bg-blue-50 border border-blue-300 rounded-lg flex items-start gap-3">
+                <Info className="text-blue-600 flex-shrink-0 animate-pulse" size={20} />
+                <div className="text-blue-800 text-sm">Transaksi sedang dikonfirmasi...</div>
+              </div>
+            )}
+
+            {success && (
+              <div className="p-4 bg-success/10 border border-success/30 rounded-lg flex items-start gap-3">
+                <FileText className="text-success flex-shrink-0" size={20} />
+                <div className="text-success text-sm">
+                  <div>{success}</div>
+                  {txHash && (
+                    <a
+                      href={`https://testnet.monadscan.com/tx/${txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 text-success hover:underline flex items-center gap-1 font-mono text-xs font-bold"
+                    >
+                      Lihat transaksi <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="btn-primary w-full"
+              disabled={isPending || isConfirming}
+            >
+              {isPending ? 'Menunggu...' : isConfirming ? 'Mengirim...' : 'Daftarkan Sewa'}
             </button>
           </form>
         </div>
