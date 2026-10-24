@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, Zap, AlertCircle, ExternalLink, Info } from 'lucide-react';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { keccak256, toBytes, isAddress } from 'viem';
@@ -15,9 +15,9 @@ export function NotaryPanelPage() {
   const [demoMode, setDemoMode] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [txHash, setTxHash] = useState('');
+  const [submittedLandId, setSubmittedLandId] = useState('');
 
-  const { writeContract, data: hash, isPending } = useWriteContract();
+  const { writeContract, data: hash, isPending, isError, error: txError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: hash as `0x${string}` | undefined
   });
@@ -34,11 +34,22 @@ export function NotaryPanelPage() {
     setDemoMode(true);
   };
 
+  useEffect(() => {
+    if (isSuccess && hash && submittedLandId) {
+      setSuccess(`Sewa berhasil didaftarkan untuk ${submittedLandId}. Status: Menunggu Finalisasi`);
+    }
+  }, [isSuccess, hash, submittedLandId]);
+
+  useEffect(() => {
+    if (isError && txError) {
+      setError(txError.message || 'Transaksi gagal.');
+    }
+  }, [isError, txError]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-    setTxHash('');
 
     if (!formData.landId || !formData.tenant || !formData.durationDays || !formData.docHash) {
       setError('Semua field harus diisi');
@@ -51,6 +62,8 @@ export function NotaryPanelPage() {
     }
 
     try {
+      setSubmittedLandId(formData.landId);
+
       const landIdHash = keccak256(toBytes(formData.landId));
       const durationSeconds = BigInt(parseInt(formData.durationDays) * 86400);
       const docHashBytes = formData.docHash.startsWith('0x')
@@ -63,11 +76,6 @@ export function NotaryPanelPage() {
         functionName: 'registerLease',
         args: [landIdHash, formData.tenant as `0x${string}`, durationSeconds, docHashBytes],
       });
-
-      if (hash) {
-        setTxHash(hash);
-        setSuccess(`Sewa berhasil didaftarkan untuk ${formData.landId}. Status: Menunggu Finalisasi`);
-      }
     } catch (err: any) {
       setError(err?.message || 'Terjadi kesalahan. Silakan coba lagi.');
     }
@@ -190,9 +198,9 @@ export function NotaryPanelPage() {
                 <FileText className="text-success flex-shrink-0" size={20} />
                 <div className="text-success text-sm">
                   <div>{success}</div>
-                  {txHash && (
+                  {hash && (
                     <a
-                      href={`https://testnet.monadscan.com/tx/${txHash}`}
+                      href={`https://testnet.monadscan.com/tx/${hash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-2 text-success hover:underline flex items-center gap-1 font-mono text-xs font-bold"

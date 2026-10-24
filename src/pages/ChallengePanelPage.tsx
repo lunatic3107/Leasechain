@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Zap, Info, ExternalLink } from 'lucide-react';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther, keccak256, toBytes } from 'viem';
@@ -13,9 +13,9 @@ export function ChallengePanelPage() {
   const [demoMode, setDemoMode] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [txHash, setTxHash] = useState('');
+  const [submittedLandId, setSubmittedLandId] = useState('');
 
-  const { writeContract, data: hash, isPending } = useWriteContract();
+  const { writeContract, data: hash, isPending, isError, error: txError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: hash as `0x${string}` | undefined
   });
@@ -30,11 +30,22 @@ export function ChallengePanelPage() {
     setDemoMode(true);
   };
 
+  useEffect(() => {
+    if (isSuccess && hash && submittedLandId) {
+      setSuccess(`Keberatan berhasil diajukan untuk ${submittedLandId}. Status tanah berubah menjadi Sengketa. Bond ${BOND_AMOUNT} MON telah disetor.`);
+    }
+  }, [isSuccess, hash, submittedLandId]);
+
+  useEffect(() => {
+    if (isError && txError) {
+      setError(txError.message || 'Transaksi gagal.');
+    }
+  }, [isError, txError]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-    setTxHash('');
 
     if (!formData.landId || !formData.evidenceHash) {
       setError('Semua field harus diisi');
@@ -42,6 +53,8 @@ export function ChallengePanelPage() {
     }
 
     try {
+      setSubmittedLandId(formData.landId);
+
       const landIdHash = keccak256(toBytes(formData.landId));
       const evidenceHashBytes = formData.evidenceHash.startsWith('0x')
         ? formData.evidenceHash as `0x${string}`
@@ -54,11 +67,6 @@ export function ChallengePanelPage() {
         args: [landIdHash, evidenceHashBytes],
         value: parseEther(BOND_AMOUNT),
       });
-
-      if (hash) {
-        setTxHash(hash);
-        setSuccess(`Keberatan berhasil diajukan untuk ${formData.landId}. Status tanah berubah menjadi Sengketa. Bond ${BOND_AMOUNT} MON telah disetor.`);
-      }
     } catch (err: any) {
       setError(err?.message || 'Terjadi kesalahan. Silakan coba lagi.');
     }
@@ -165,9 +173,9 @@ export function ChallengePanelPage() {
                 <AlertTriangle className="text-success flex-shrink-0" size={20} />
                 <div className="text-success text-sm">
                   <div>{success}</div>
-                  {txHash && (
+                  {hash && (
                     <a
-                      href={`https://testnet.monadscan.com/tx/${txHash}`}
+                      href={`https://testnet.monadscan.com/tx/${hash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-2 text-success hover:underline flex items-center gap-1 font-mono text-xs font-bold"
