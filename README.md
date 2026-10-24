@@ -5,8 +5,8 @@ Catatan publik status sewa tanah di Bali (Monad Testnet) yang menolak sewa ganda
 ## Live
 
 - **Network**: Monad Testnet
-- **Contract**: (akan diisi setelah deploy)
-- **Explorer**: (akan diisi setelah verify)
+- **Contract**: `0x11c1a9ccb57a24a5ec52c20bfa67c6df07738f0c`
+- **Explorer**: https://explorer-testnet.monad.xyz/address/0x11c1a9ccb57a24a5ec52c20bfa67c6df07738f0c
 
 ## Apa yang dikerjakan
 
