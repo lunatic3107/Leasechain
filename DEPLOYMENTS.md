@@ -23,6 +23,14 @@
 - Admin: `0xF29b83d440419a8c4AE25b98882cA37b91a9D0f0`
 - Treasury: `0xF29b83d440419a8c4AE25b98882cA37b91a9D0f0`
 
+## Demo Roles (Seeded)
+
+- Notary 1: `0xb6b140a62D22A5e5f5f96A03F433163eC514AbBb`
+- Notary 2: `0xA06A9CB9f5e78056236Cca7EE551fbCB1a90a72A`
+- Resolver: `0x63DF52F754e35B0734767b86d2342b5EB766f324`
+- Challenge Window: 120 seconds
+- Bond: 0.01 ETH
+
 ## Verification Status
 
 - [x] Sourcify (Job ID: 6cf0c8b9-855b-4cd1-a091-901234eab650)

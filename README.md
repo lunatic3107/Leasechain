@@ -130,7 +130,12 @@ forge script script/Seed.s.sol --rpc-url https://testnet-rpc.monad.xyz --broadca
 
 ## Demo accounts
 
-(Akan diisi setelah seed: alamat wallet notary1, notary2, resolver. **TIDAK** termasuk private key.)
+- **Notary 1**: `0xb6b140a62D22A5e5f5f96A03F433163eC514AbBb`
+- **Notary 2**: `0xA06A9CB9f5e78056236Cca7EE551fbCB1a90a72A`
+- **Resolver**: `0x63DF52F754e35B0734767b86d2342b5EB766f324`
+- **Admin/Treasury**: `0xF29b83d440419a8c4AE25b98882cA37b91a9D0f0`
+
+Private keys tersimpan di `demo-wallets.txt` (tidak di-commit, hanya untuk tim internal).
 
 ## Architecture
 
