@@ -1,7 +1,9 @@
 # Secrets (NEVER commit)
 privatekey.txt
 .env
+.env.local
 *.key
+demo-wallets.txt
 
 # Foundry
 out/
@@ -9,10 +11,14 @@ cache/
 broadcast/
 lib/
 
-# Node (if frontend added later)
+# Node/Frontend
 node_modules/
 .next/
 dist/
+
+# Build artifacts
+*.log
+*.zip
 
 # IDE
 .vscode/
@@ -23,4 +29,3 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
-demo-wallets.txt
